@@ -141,7 +141,8 @@ class Tx_Dialog(QtWidgets.QDialog):
 
     def working_click(self):
         pending_transaction = self.get_values()
-        blockchain.add_transaction(address, pending_transaction["address"], pending_transaction["amount"])
+
+        blockchain.add_transaction(address, pending_transaction["address"], pending_transaction["amount"], wallet)
         self.accept()
 
 
@@ -281,7 +282,7 @@ class MyWidget(QtWidgets.QWidget):
             blockchain = Blockchain(difficulty)
             blockchain.create_genesis_block()
         else:
-            blockchain.mine_block()
+            blockchain.mine_block(wallet)
 
         self.define_block(blockchain.chain[-1])
         chain = blockchain.to_dict()

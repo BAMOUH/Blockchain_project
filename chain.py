@@ -27,8 +27,9 @@ class Blockchain:
         self.chain.append(genesis_block)
 
 
-    def add_transaction(self, sender, receiver, amount):
+    def add_transaction(self, sender, receiver, amount,account):
         transaction = Transaction(sender, receiver, amount, time.time())
+        transaction.sign(account)
         self.transactions_pool.append(transaction)
 
 
@@ -57,10 +58,18 @@ class Blockchain:
         if not block.verify():
             print("ERROR: block not valid")
 
-        self.chain.append(block)
+        # verification du la signature block et chaque transactions du block
+        flag = False
+        if block.verify():
+            for tx in block:
+                if not tx.verify():
+                    flag = True
+            if not flag:
+                self.chain.append(block)
 
 
-    def mine_block(self):
+
+    def mine_block(self, account):
         if not self.transactions_pool:
             print("ERROR: no transactions waiting")
         last_block = self.last_block
@@ -74,6 +83,7 @@ class Blockchain:
         new_block.add_transaction(new_tx)
         nonce = new_block.mine(self.difficulty)
 
+        new_block.sign(account)
         self.add_block(new_block)
 
 
@@ -85,10 +95,6 @@ class Blockchain:
 
     def to_dict(self):
         chain_dict = []
-
         for elem in self.chain:
-
             chain_dict.append(elem.to_dict())
-
-
         return chain_dict
